@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PixelForge — Websites Crafted for $100</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --black: #0a0a0a;
+      --white: #f5f2eb;
+      --accent: #ff5c1a;
+      --gold: #e8c840;
+      --mid: #1c1c1c;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* Custom cursor */
+    .cursor {
+      position: fixed;
+      width: 16px; height: 16px;
+      background: var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: width 0.2s, height 0.2s, opacity 0.2s;
+      mix-blend-mode: difference;
+    }
+    .cursor.expand { width: 48px; height: 48px; opacity: 0.6; }
+
+    /* Noise texture overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9998;
+      opacity: 0.4;
+    }
+
+    /* ======= NAV ======= */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 3rem;
+      mix-blend-mode: normal;
+    }
+    nav::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(10,10,10,0.9), transparent);
+      z-index: -1;
+    }
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      letter-spacing: 0.08em;
+      color: var(--white);
+      text-decoration: none;
+    }
+    .logo span { color: var(--accent); }
+    .nav-cta {
+      background: var(--accent);
+      color: var(--black);
+      font-weight: 600;
+      font-size: 0.85rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 0.65rem 1.6rem;
+      border-radius: 2px;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .nav-cta:hover { background: var(--gold); transform: translateY(-2px); }
+
+    /* ======= HERO ======= */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 8rem 3rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Big background dollar sign */
+    #hero::before {
+      content: '$';
+      position: absolute;
+      right: -2rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 60vw;
+      color: rgba(255,255,255,0.025);
+      line-height: 1;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .hero-eyebrow {
+      font-size: 0.78rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.2s forwards;
+    }
+
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(5rem, 14vw, 14rem);
+      line-height: 0.92;
+      letter-spacing: -0.01em;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.4s forwards;
+    }
+    .hero-title .line2 { color: var(--accent); }
+    .hero-title .line3 { 
+      -webkit-text-stroke: 1.5px var(--white);
+      color: transparent;
+    }
+
+    .hero-sub {
+      max-width: 480px;
+      font-size: 1.1rem;
+      font-weight: 300;
+      line-height: 1.7;
+      margin-top: 2.5rem;
+      color: rgba(245,242,235,0.7);
+      opacity: 0;
+      animation: fadeUp 0.8s 0.6s forwards;
+    }
+
+    .hero-price-tag {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 0.3rem;
+      margin-top: 3rem;
+      background: var(--gold);
+      color: var(--black);
+      padding: 1rem 2rem;
+      border-radius: 2px;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.8s forwards;
+      text-decoration: none;
+    }
+    .hero-price-tag .price {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3.5rem;
+      line-height: 1;
+    }
+    .hero-price-tag .price-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .hero-price-tag:hover { background: var(--accent); color: var(--white); transform: scale(1.03); transition: all 0.2s; }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      opacity: 0;
+      animation: fadeUp 1s 1.2s forwards;
+    }
+    .scroll-hint::after {
+      content: '';
+      display: block;
+      width: 1px;
+      height: 60px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.3), transparent);
+      animation: scrollLine 1.5s 1.5s infinite;
+    }
+
+    /* ======= MARQUEE ======= */
+    .marquee-wrap {
+      background: var(--accent);
+      color: var(--black);
+      padding: 1rem 0;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .marquee-track {
+      display: inline-block;
+      animation: marquee 18s linear infinite;
+    }
+    .marquee-track span {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 0.15em;
+      padding: 0 2.5rem;
+    }
+    .marquee-track .dot {
+      display: inline-block;
+      width: 8px; height: 8px;
+      background: var(--black);
+      border-radius: 50%;
+      vertical-align: middle;
+      margin: 0 1rem;
+    }
+
+    /* ======= SECTION SHARED ======= */
+    section { padding: 7rem 3rem; }
+
+    .section-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 6vw, 5.5rem);
+      line-height: 1;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ======= HOW IT WORKS ======= */
+    #how {
+      background: var(--mid);
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 2px;
+      margin-top: 4rem;
+    }
+    .step {
+      background: var(--black);
+      padding: 3rem 2rem;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.3s;
+    }
+    .step:hover { background: #111; }
+    .step-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 5rem;
+      color: rgba(255,255,255,0.06);
+      line-height: 1;
+      margin-bottom: 1rem;
+      transition: color 0.3s;
+    }
+    .step:hover .step-num { color: var(--accent); opacity: 0.2; }
+    .step h3 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.75rem;
+    }
+    .step p { font-size: 0.95rem; font-weight: 300; color: rgba(245,242,235,0.6); line-height: 1.65; }
+    .step-accent-bar {
+      position: absolute;
+      bottom: 0; left: 0;
+      height: 3px;
+      width: 0;
+      background: var(--accent);
+      transition: width 0.4s ease;
+    }
+    .step:hover .step-accent-bar { width: 100%; }
+
+    /* ======= WHAT YOU GET ======= */
+    #features {
+      background: var(--black);
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+      margin-top: 4rem;
+    }
+    .feature-card {
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 2.5rem;
+      border-radius: 2px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: radial-gradient(circle at 0% 0%, rgba(255,92,26,0.08), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+    .feature-card:hover { border-color: var(--accent); transform: translateY(-4px); }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-icon {
+      font-size: 2rem;
+      margin-bottom: 1.2rem;
+    }
+    .feature-card h3 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.6rem;
+    }
+    .feature-card p { font-size: 0.92rem; font-weight: 300; color: rgba(245,242,235,0.6); line-height: 1.65; }
+
+    /* ======= PRICING ======= */
+    #pricing {
+      background: var(--mid);
+      text-align: center;
+    }
+    .price-card {
+      display: inline-block;
+      background: var(--black);
+      border: 2px solid var(--gold);
+      padding: 4rem 5rem;
+      border-radius: 4px;
+      margin-top: 3rem;
+      position: relative;
+    }
+    .price-badge {
+      position: absolute;
+      top: -1.1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--gold);
+      color: var(--black);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 0.35rem 1.2rem;
+      border-radius: 2px;
+    }
+    .price-amount {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 8rem;
+      line-height: 1;
+      color: var(--gold);
+    }
+    .price-per { font-size: 1rem; color: rgba(245,242,235,0.5); margin-top: 0.5rem; letter-spacing: 0.1em; }
+    .price-includes {
+      list-style: none;
+      margin-top: 2.5rem;
+      text-align: left;
+    }
+    .price-includes li {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      font-size: 0.95rem;
+      font-weight: 300;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .price-includes li::before {
+      content: '✓';
+      color: var(--gold);
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    /* ======= CONTACT ======= */
+    #contact {
+      background: var(--black);
+      position: relative;
+      overflow: hidden;
+    }
+    #contact::before {
+      content: 'GET\ASTARTED';
+      white-space: pre;
+      position: absolute;
+      right: -1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22vw;
+      line-height: 0.88;
+      color: rgba(255,255,255,0.02);
+      pointer-events: none;
+      user-select: none;
+    }
+    .contact-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: start;
+    }
+    @media (max-width: 768px) { .contact-layout { grid-template-columns: 1fr; gap: 3rem; } }
+    .contact-info { position: relative; z-index: 1; }
+    .contact-blurb {
+      font-size: 1rem;
+      font-weight: 300;
+      color: rgba(245,242,235,0.65);
+      line-height: 1.8;
+      margin-bottom: 3rem;
+    }
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      text-decoration: none;
+      color: var(--white);
+      transition: color 0.2s;
+      font-size: 1.05rem;
+    }
+    .contact-item:hover { color: var(--accent); }
+    .contact-item-icon {
+      width: 44px; height: 44px;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .contact-item:hover .contact-item-icon {
+      border-color: var(--accent);
+      background: var(--accent);
+    }
+
+    /* Contact form */
+    .contact-form { position: relative; z-index: 1; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label {
+      display: block;
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(245,242,235,0.4);
+      margin-bottom: 0.5rem;
+    }
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      padding: 1rem 1.25rem;
+      border-radius: 2px;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: var(--accent);
+      background: rgba(255,92,26,0.05);
+    }
+    .form-group textarea { resize: vertical; min-height: 130px; }
+    .form-submit {
+      width: 100%;
+      background: var(--accent);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 1.2rem;
+      border: none;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+      margin-top: 0.5rem;
+    }
+    .form-submit:hover { background: var(--gold); color: var(--black); transform: translateY(-2px); }
+    .form-note {
+      font-size: 0.78rem;
+      color: rgba(245,242,235,0.3);
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    /* ======= FOOTER ======= */
+    footer {
+      background: #050505;
+      padding: 2.5rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    footer .foot-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      color: var(--white);
+    }
+    footer .foot-logo span { color: var(--accent); }
+    footer p { font-size: 0.82rem; color: rgba(245,242,235,0.3); }
+
+    /* ======= ANIMATIONS ======= */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+    @keyframes scrollLine {
+      0% { transform: scaleY(0); transform-origin: top; }
+      50% { transform: scaleY(1); transform-origin: top; }
+      51% { transform: scaleY(1); transform-origin: bottom; }
+      100% { transform: scaleY(0); transform-origin: bottom; }
+    }
+
+    /* Scroll reveal */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: none; }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    @media (max-width: 600px) {
+      nav { padding: 1.2rem 1.5rem; }
+      #hero { padding: 7rem 1.5rem 3rem; }
+      section { padding: 5rem 1.5rem; }
+      footer { padding: 2rem 1.5rem; }
+      .price-card { padding: 3rem 2rem; }
+      .price-amount { font-size: 5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+
+  <!-- NAV -->
+  <nav>
+    <a class="logo" href="#"><span>Pixel</span>Forge</a>
+    <a class="nav-cta" href="#contact">Get Your Site →</a>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <p class="hero-eyebrow">Web Design · Built Fast · Priced Right</p>
+    <h1 class="hero-title">
+      Your<br>
+      <span class="line2">Business</span><br>
+      <span class="line3">Online.</span>
+    </h1>
+    <p class="hero-sub">
+      We build clean, professional websites for local businesses, freelancers, and startups. No bloated packages. No hidden fees. Just results.
+    </p>
+    <a class="hero-price-tag" href="#contact">
+      <span class="price">$100</span>
+      <span class="price-label">flat rate<br>per website</span>
+    </a>
+    <div class="scroll-hint">Scroll</div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <span>Professional Websites</span><span class="dot"></span>
+      <span>$100 Flat Rate</span><span class="dot"></span>
+      <span>Fast Turnaround</span><span class="dot"></span>
+      <span>Mobile Friendly</span><span class="dot"></span>
+      <span>Built for You</span><span class="dot"></span>
+      <span>No Hidden Fees</span><span class="dot"></span>
+      <span>Professional Websites</span><span class="dot"></span>
+      <span>$100 Flat Rate</span><span class="dot"></span>
+      <span>Fast Turnaround</span><span class="dot"></span>
+      <span>Mobile Friendly</span><span class="dot"></span>
+      <span>Built for You</span><span class="dot"></span>
+      <span>No Hidden Fees</span><span class="dot"></span>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <section id="how">
+    <p class="section-label reveal">How It Works</p>
+    <h2 class="section-title reveal">Three steps.<br>One great site.</h2>
+    <div class="steps">
+      <div class="step reveal reveal-delay-1">
+        <div class="step-num">01</div>
+        <h3>Reach Out</h3>
+        <p>Send us a message with your business name, what you do, and what you're looking for. We'll get back to you fast.</p>
+        <div class="step-accent-bar"></div>
+      </div>
+      <div class="step reveal reveal-delay-2">
+        <div class="step-num">02</div>
+        <h3>We Build It</h3>
+        <p>We design and develop your custom website — clean, mobile-friendly, and built to represent your brand properly.</p>
+        <div class="step-accent-bar"></div>
+      </div>
+      <div class="step reveal reveal-delay-3">
+        <div class="step-num">03</div>
+        <h3>You Go Live</h3>
+        <p>Review, approve, and launch. You get a professional online presence without breaking the bank.</p>
+        <div class="step-accent-bar"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT YOU GET -->
+  <section id="features">
+    <p class="section-label reveal">What's Included</p>
+    <h2 class="section-title reveal">Everything you need.<br>Nothing you don't.</h2>
+    <div class="features-grid">
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon">📱</div>
+        <h3>Mobile Responsive</h3>
+        <p>Your site looks sharp on every device — phones, tablets, and desktops alike.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-icon">⚡</div>
+        <h3>Fast Loading</h3>
+        <p>Lightweight, optimized code means your visitors won't wait around. Speed matters.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-3">
+        <div class="feature-icon">🎨</div>
+        <h3>Custom Design</h3>
+        <p>Not a cookie-cutter template. We tailor the look and feel to match your brand.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-4">
+        <div class="feature-icon">🔍</div>
+        <h3>SEO Ready</h3>
+        <p>Built with proper structure so search engines like Google can find and rank you.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon">📞</div>
+        <h3>Contact Section</h3>
+        <p>Every site includes a contact area so customers can easily reach you.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-icon">✏️</div>
+        <h3>Revisions Included</h3>
+        <p>Not happy with something? We'll tweak it until it's exactly what you envisioned.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing">
+    <p class="section-label reveal">Pricing</p>
+    <h2 class="section-title reveal">No subscriptions.<br>No surprises.</h2>
+    <div class="reveal">
+      <div class="price-card">
+        <div class="price-badge">⭐ Our Only Plan</div>
+        <div class="price-amount">$100</div>
+        <p class="price-per">One-time flat rate · Per website</p>
+        <ul class="price-includes">
+          <li>Custom designed website</li>
+          <li>Mobile-friendly & responsive</li>
+          <li>Up to 5 pages</li>
+          <li>Contact section</li>
+          <li>SEO-friendly structure</li>
+          <li>Fast turnaround</li>
+          <li>Revisions until you're happy</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="contact-layout">
+      <div class="contact-info">
+        <p class="section-label reveal">Contact</p>
+        <h2 class="section-title reveal">Let's build<br>your site.</h2>
+        <p class="contact-blurb reveal">
+          Ready to get online? Fill out the form or reach out directly. We respond quickly and make the process painless.
+        </p>
+        <a class="contact-item reveal" href="mailto:stefangodinez@gmail.com">
+          <div class="contact-item-icon">✉</div>
+          stefangodinez@gmail.com
+        </a>
+        <a class="contact-item reveal" href="tel:6309140386">
+          <div class="contact-item-icon">📞</div>
+          (630) 914-0386
+        </a>
+      </div>
+      <div class="contact-form reveal">
+        <div class="form-group">
+          <label>Your Name</label>
+          <input type="text" placeholder="Jane Smith" />
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" placeholder="jane@yourbusiness.com" />
+        </div>
+        <div class="form-group">
+          <label>Business Name</label>
+          <input type="text" placeholder="Smith's Plumbing LLC" />
+        </div>
+        <div class="form-group">
+          <label>Tell Us About Your Project</label>
+          <textarea placeholder="What kind of website do you need? What does your business do?"></textarea>
+        </div>
+        <button class="form-submit" onclick="handleSubmit(this)">Send My Request →</button>
+        <p class="form-note">We'll get back to you within 24 hours.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="foot-logo"><span>Pixel</span>Forge</div>
+    <p>© 2026 PixelForge. All rights reserved.</p>
+    <p>Made with ⚡ in Illinois</p>
+  </footer>
+
+  <script>
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top = e.clientY + 'px';
+    });
+    document.querySelectorAll('a, button, .step, .feature-card').forEach(el => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('expand'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('expand'));
+    });
+
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.12 });
+    reveals.forEach(el => observer.observe(el));
+
+    // Form submit
+    function handleSubmit(btn) {
+      const name = btn.closest('.contact-form').querySelector('input[type=text]').value;
+      const email = btn.closest('.contact-form').querySelector('input[type=email]').value;
+      if (!name || !email) {
+        btn.style.background = '#c0392b';
+        btn.textContent = 'Please fill in your name & email!';
+        setTimeout(() => {
+          btn.style.background = '';
+          btn.textContent = 'Send My Request →';
+        }, 2500);
+        return;
+      }
+      btn.style.background = '#2ecc71';
+      btn.textContent = '✓ Request Sent! We\'ll be in touch.';
+      btn.disabled = true;
+    }
+  </script>
+</body>
+</html>
